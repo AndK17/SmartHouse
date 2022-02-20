@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <title>Умный дом</title>
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+        <script src="https://code.jquery.com/jquery-3.6.0.js" integrity="sha256-H+K7U5CnXl1h5ywQfKtSj8PCmoN9aaq30gDh27Xc0jk=" crossorigin="anonymous"></script>
+        <script type="text/javascript">
+            setInterval(function draw_table(){
+                $.ajax({
+                    url: '/getd',
+                    type: "POST",
+                    success: function(response) {
+                        response = response.split(" ");
+                        let tm = document.getElementById('tm');
+                        tm.innerHTML = "Темепература: " + response[0];
+                        let hm = document.getElementById('hm');
+                        hm.innerHTML = "Влажность: " + response[1];
+                        let br = document.getElementById('br');
+                        br.innerHTML = "Освещенность: " + response[2];
+                        let fire = document.getElementById('fire');
+                        fire.innerHTML = "Тревога: " + response[3];                        
+                    },
+                    error: function(response) {
+                        console.log("Ошибка. Данные не отправленны");
+                    }
+                });
+            }, 1000);
+        </script>
+    </head>
+    <body>
+        <h1>Управление домом</h1>
+        <div class="value">{{br}}</div>
+        <form method="post" action="/">
+            <input type="range" min="0" max="100" step="1" value="{{br}}" name='brightness'>
+            <input type="color" value="{{clr}}"  name='color'>
+            <p>Обогрев</p>
+            <label class="switch">
+                <input type="checkbox" name='heating' {{ "checked" if heating else "" }}>
+                <span class="slider round"></span>
+            </label>
+            <p>Вентеляция</p>
+            <label class="switch">
+                <input type="checkbox" name='ventilation' {{ "checked" if ventilation else "" }}>
+                <span class="slider round"></span>
+            </label>
+            <br>
+            <input type="submit" value="ok" name="action3"/>
+            <input type="submit" value="авто" name="avtolight"/>
+        </form>
+        <p id='tm'>Темепература: {{temperature}}</p>
+        <p id='hm'>Влажность: {{humidity}}</p>
+        <p id='br'>Освещенность: {{brightness}}</p>
+        <p id='fire'>Тревога: {{is_fire}}</p>
+        <script>
+            var elem = document.querySelector('input[type="range"]');
+
+            var rangeValue = function(){
+            var newValue = elem.value;
+            var target = document.querySelector('.value');
+            target.innerHTML = newValue;
+            }
+
+            elem.addEventListener("input", rangeValue);
+        </script>
+    </body>
+</html>
